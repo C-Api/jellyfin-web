@@ -18,6 +18,7 @@ import '../assets/css/flexstyles.scss';
 import Dashboard, { pageClassOn } from './clientUtils';
 import ServerConnections from '../components/ServerConnections';
 import Headroom from 'headroom.js';
+import * as userSettings from './settings/userSettings';
 
 /* eslint-disable indent */
 
@@ -25,9 +26,9 @@ import Headroom from 'headroom.js';
         let html = '';
         html += '<div class="flex align-items-center flex-grow headerTop">';
         html += '<div class="headerLeft">';
+        html += '<button type="button" is="paper-icon-button-light" class="headerButton mainDrawerButton barsMenuButton headerButtonLeft hide"><span class="material-icons menu"></span></button>';
         html += '<button type="button" is="paper-icon-button-light" class="headerButton headerButtonLeft headerBackButton hide"><span class="material-icons ' + (browser.safari ? 'chevron_left' : 'arrow_back') + '"></span></button>';
         html += '<button type="button" is="paper-icon-button-light" class="headerButton headerHomeButton hide barsMenuButton headerButtonLeft"><span class="material-icons home"></span></button>';
-        html += '<button type="button" is="paper-icon-button-light" class="headerButton mainDrawerButton barsMenuButton headerButtonLeft hide"><span class="material-icons menu"></span></button>';
         html += '<h3 class="pageTitle"></h3>';
         html += '</div>';
         html += '<div class="headerRight">';
@@ -241,24 +242,41 @@ import Headroom from 'headroom.js';
 
     function toggleMainDrawer() {
         if (navDrawerInstance.isVisible) {
-            closeMainDrawer();
+            closeMainDrawer(true);
         } else {
-            openMainDrawer();
+            openMainDrawer(true,true);
         }
     }
 
-    function openMainDrawer() {
+    function openMainDrawer(keepOpen=true,persist=false) {
+        keepNavDrawerOpen = (keepOpen & !layoutManager.mobile);
+
+        if(persist) {
+          userSettings.openNavDrawerOnLoad(true);
+        }
+
         navDrawerInstance.open();
+    }
+
+    function closeMainDrawer(persist=false) {
+
+        if(persist) {
+          userSettings.openNavDrawerOnLoad(false);
+        }
+
+        navDrawerInstance.close();
+    }
+
+    function onNavDrawerLoaded() {
+        if (userSettings.openNavDrawerOnLoad() && !layoutManager.mobile) {
+          openMainDrawer();
+        }
     }
 
     function onMainDrawerOpened() {
         if (layoutManager.mobile) {
             document.body.classList.add('bodyWithPopupOpen');
         }
-    }
-
-    function closeMainDrawer() {
-        navDrawerInstance.close();
     }
 
     function onMainDrawerSelect() {
@@ -272,7 +290,6 @@ import Headroom from 'headroom.js';
     function refreshLibraryInfoInDrawer(user) {
         let html = '';
         html += '<div style="height:.5em;"></div>';
-        html += '<a is="emby-linkbutton" class="navMenuOption lnkMediaFolder" href="#!/home.html"><span class="material-icons navMenuOptionIcon home"></span><span class="navMenuOptionText">' + globalize.translate('Home') + '</span></a>';
 
         // placeholder for custom menu links
         html += '<div class="customMenuOptions"></div>';
@@ -282,9 +299,9 @@ import Headroom from 'headroom.js';
 
         if (user.localUser && user.localUser.Policy.IsAdministrator) {
             html += '<div class="adminMenuOptions">';
-            html += '<h3 class="sidebarHeader">';
+            html += '<div class="sidebarHeader"><h3>';
             html += globalize.translate('HeaderAdmin');
-            html += '</h3>';
+            html += '</h3></div>';
             html += '<a is="emby-linkbutton" class="navMenuOption lnkMediaFolder lnkManageServer" data-itemid="dashboard" href="#!/dashboard.html"><span class="material-icons navMenuOptionIcon dashboard"></span><span class="navMenuOptionText">' + globalize.translate('TabDashboard') + '</span></a>';
             html += '<a is="emby-linkbutton" class="navMenuOption lnkMediaFolder editorViewMenu" data-itemid="editor" href="#!/edititemmetadata.html"><span class="material-icons navMenuOptionIcon mode_edit"></span><span class="navMenuOptionText">' + globalize.translate('Metadata') + '</span></a>';
             html += '</div>';
@@ -292,9 +309,9 @@ import Headroom from 'headroom.js';
 
         if (user.localUser) {
             html += '<div class="userMenuOptions">';
-            html += '<h3 class="sidebarHeader">';
+            html += '<div class="sidebarHeader"><h3>';
             html += globalize.translate('HeaderUser');
-            html += '</h3>';
+            html += '</h3></div>';
 
             if (appHost.supports('multiserver')) {
                 html += '<a is="emby-linkbutton" class="navMenuOption lnkMediaFolder btnSelectServer" data-itemid="selectserver" href="#"><span class="material-icons navMenuOptionIcon wifi"></span><span class="navMenuOptionText">' + globalize.translate('SelectServer') + '</span></a>';
@@ -676,7 +693,7 @@ import Headroom from 'headroom.js';
         if (libraryMenuOptions) {
             getUserViews(apiClient, userId).then(function (result) {
                 const items = result;
-                let html = `<h3 class="sidebarHeader">${globalize.translate('HeaderMedia')}</h3>`;
+                let html = `<div class="sidebarHeader"><h3>${globalize.translate('HeaderMedia')}</h3></div>`;
                 html += items.map(function (i) {
                     const icon = i.icon || imageHelper.getLibraryIcon(i.CollectionType);
                     const itemId = i.Id;
@@ -703,9 +720,28 @@ import Headroom from 'headroom.js';
     }
 
     function onMainDrawerClick(e) {
-        if (dom.parentWithTag(e.target, 'A')) {
+        if (dom.parentWithTag(e.target, 'A') && !keepNavDrawerOpen) {
             setTimeout(closeMainDrawer, 30);
         }
+    }
+
+    function onMainDrawerMouseEnter(e) {
+      if(navDrawerInstance && !navDrawerInstance.isVisible) {
+        hoverTimerId = setTimeout(() => {
+          openMainDrawer(false)
+        }, 1000);
+      }
+    }
+
+    function onMainDrawerMouseLeave(e) {
+      if(hoverTimerId) {
+        clearTimeout(hoverTimerId);
+        hoverTimerId = null;
+      }
+
+      if(!keepNavDrawerOpen) {
+        closeMainDrawer();
+      }
     }
 
     function onSelectServerClick() {
@@ -794,25 +830,26 @@ import Headroom from 'headroom.js';
                 if (navDrawerInstance) {
                     navDrawerInstance.setEdgeSwipeEnabled(true);
                 }
+            } else if (isDashboardPage) {
+                bodyClassList.remove('libraryDocument');
+                bodyClassList.add('dashboardDocument');
+                bodyClassList.remove('hideMainDrawer');
+
+                if (navDrawerInstance) {
+                  navDrawerInstance.setEdgeSwipeEnabled(true);
+               }
+
+               navDrawerScrollContainer.scrollTop = 0;
             } else {
-                if (isDashboardPage) {
-                    bodyClassList.remove('libraryDocument');
-                    bodyClassList.add('dashboardDocument');
-                    bodyClassList.remove('hideMainDrawer');
+                bodyClassList.remove('libraryDocument');
+                bodyClassList.remove('dashboardDocument');
+                bodyClassList.add('hideMainDrawer');
 
-                    if (navDrawerInstance) {
-                        navDrawerInstance.setEdgeSwipeEnabled(true);
-                    }
-                } else {
-                    bodyClassList.remove('libraryDocument');
-                    bodyClassList.remove('dashboardDocument');
-                    bodyClassList.add('hideMainDrawer');
-
-                    if (navDrawerInstance) {
-                        navDrawerInstance.setEdgeSwipeEnabled(false);
-                    }
+                if (navDrawerInstance) {
+                    navDrawerInstance.setEdgeSwipeEnabled(false);
                 }
             }
+            
         }
 
         if (requiresUserRefresh) {
@@ -861,12 +898,15 @@ import Headroom from 'headroom.js';
 
     function getNavDrawerOptions() {
         let drawerWidth = window.screen.availWidth - 50;
+
+        let w = navDrawerElement.style.width;
         drawerWidth = Math.max(drawerWidth, 240);
         drawerWidth = Math.min(drawerWidth, 320);
+
         return {
             target: navDrawerElement,
             onChange: onMainDrawerSelect,
-            width: drawerWidth
+            width: drawerWidth,
         };
     }
 
@@ -876,8 +916,12 @@ import Headroom from 'headroom.js';
         }
 
         navDrawerElement = document.querySelector('.mainDrawer');
+        navDrawerElement.addEventListener("mouseenter", onMainDrawerMouseEnter, false);
+        navDrawerElement.addEventListener("mouseleave", onMainDrawerMouseLeave, false);
+
         navDrawerScrollContainer = navDrawerElement.querySelector('.scrollContainer');
         navDrawerScrollContainer.addEventListener('click', onMainDrawerClick);
+
         return new Promise(function (resolve) {
             import('../libraries/navdrawer/navdrawer').then(({ NavigationDrawer }) => {
                 navDrawerInstance = new NavigationDrawer(getNavDrawerOptions());
@@ -885,7 +929,7 @@ import Headroom from 'headroom.js';
                 if (!layoutManager.tv) {
                     navDrawerElement.classList.remove('hide');
                 }
-
+                
                 resolve(navDrawerInstance);
             });
         });
@@ -905,10 +949,12 @@ import Headroom from 'headroom.js';
     let headerSearchButton;
     let headerAudioPlayerButton;
     let headerSyncButton;
-    const enableLibraryNavDrawer = layoutManager.desktop;
+    const enableLibraryNavDrawer = layoutManager.desktop || layoutManager.mobile;
     const enableLibraryNavDrawerHome = !layoutManager.tv;
     const skinHeader = document.querySelector('.skinHeader');
     let requiresUserRefresh = true;
+    let keepNavDrawerOpen = true;
+    let hoverTimerId = null;
 
     function setTabs (type, selectedIndex, builder) {
         import('../components/maintabsmanager').then((mainTabsManager) => {
@@ -981,13 +1027,16 @@ import Headroom from 'headroom.js';
         const page = this;
         const isDashboardPage = page.classList.contains('type-interior');
         const isHomePage = page.classList.contains('homePage');
-        const isLibraryPage = !isDashboardPage && page.classList.contains('libraryPage');
+        const isVideoPage = (page.id && 'videoosdpage' == page.id.toLowerCase());
+        const isLibraryPage = !isVideoPage && !isDashboardPage && page.classList.contains('libraryPage');
         const apiClient = getCurrentApiClient();
 
         if (isDashboardPage) {
             if (mainDrawerButton) {
                 mainDrawerButton.classList.remove('hide');
             }
+
+            closeMainDrawer();
 
             refreshDashboardInfoInDrawer(apiClient);
         } else {
@@ -1001,6 +1050,10 @@ import Headroom from 'headroom.js';
 
             if (currentDrawerType !== 'library') {
                 refreshLibraryDrawer();
+            }
+
+            if(!userSettings.openNavDrawerOnLoad()) {
+              closeMainDrawer();
             }
         }
 
@@ -1024,7 +1077,7 @@ import Headroom from 'headroom.js';
             localUser: user
         };
 
-        loadNavDrawer();
+        loadNavDrawer().then(onNavDrawerLoaded);
 
         ServerConnections.user(currentApiClient).then(function (userResult) {
             currentUser = userResult;

@@ -154,9 +154,8 @@ div[data-role=controlgroup] a.ui-btn-active {
 }
 
 .content-primary {
-    padding-top: 6em;
     padding-right: 1em;
-    padding-left: 1em;
+    padding-left: 2em;
 }
 
 .withTabs .content-primary {
@@ -164,10 +163,6 @@ div[data-role=controlgroup] a.ui-btn-active {
 }
 
 @media all and (min-width: 40em) {
-    .content-primary {
-        padding-top: 4.6em;
-    }
-
     .withTabs .content-primary {
         padding-top: 10em !important;
     }

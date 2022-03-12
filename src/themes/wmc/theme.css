@@ -472,8 +472,8 @@ a[data-role=button] {
 
 .layout-desktop ::-webkit-scrollbar,
 .layout-tv ::-webkit-scrollbar {
-    width: 1em;
-    height: 1em;
+    width: 0.4em;
+    height: 0.4em;
 }
 
 ::-webkit-scrollbar-thumb:horizontal,

@@ -170,7 +170,7 @@ export function NavigationDrawer(options) {
     const TouchMenuLA = function () {
         self = this;
         defaults = {
-            width: 260,
+            width: 80,
             handleSize: 10,
             disableMask: false,
             maxMaskOpacity: 0.5
@@ -182,7 +182,6 @@ export function NavigationDrawer(options) {
     TouchMenuLA.prototype.initElements = function () {
         options.target.classList.add('touch-menu-la');
         options.target.style.width = options.width + 'px';
-        options.target.style.left = -options.width + 'px';
 
         if (!options.disableMask) {
             mask = document.createElement('div');
@@ -202,7 +201,7 @@ export function NavigationDrawer(options) {
 
     TouchMenuLA.prototype.animateToPosition = function (pos) {
         requestAnimationFrame(function () {
-            options.target.style.transform = pos ? 'translateX(' + pos + 'px)' : 'none';
+            options.target.style.width = pos + 'px';
         });
     };
 

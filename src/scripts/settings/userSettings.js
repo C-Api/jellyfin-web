@@ -475,6 +475,21 @@ export class UserSettings {
     }
 
     /**
+     * Get or set user preference to keep the navigation drawer open upon refresh
+     * @param {boolean|undefined} val - True to open main navbar by default.
+     * @return {boolen} True/False - True for keeping navbar open by default.
+     */
+    openNavDrawerOnLoad(val) {
+        if (val !== undefined) {
+            return this.set('opennavdraweronload', val.toString(), false);
+        }
+
+        val =  this.get('opennavdraweronload', false);
+        return val !== 'false';
+
+    }
+
+    /**
      * Load query settings.
      * @param {string} key - Query key.
      * @param {Object} query - Query base.
@@ -580,6 +595,7 @@ export const screensaver = currentSettings.screensaver.bind(currentSettings);
 export const libraryPageSize = currentSettings.libraryPageSize.bind(currentSettings);
 export const maxDaysForNextUp = currentSettings.maxDaysForNextUp.bind(currentSettings);
 export const soundEffects = currentSettings.soundEffects.bind(currentSettings);
+export const openNavDrawerOnLoad = currentSettings.openNavDrawerOnLoad.bind(currentSettings);
 export const loadQuerySettings = currentSettings.loadQuerySettings.bind(currentSettings);
 export const saveQuerySettings = currentSettings.saveQuerySettings.bind(currentSettings);
 export const getSubtitleAppearanceSettings = currentSettings.getSubtitleAppearanceSettings.bind(currentSettings);

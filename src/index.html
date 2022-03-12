@@ -104,6 +104,22 @@
             width: 0.8em;
         }
 
+        .pageScrollContainer {
+          position: relative;
+          -webkit-flex-grow: 1;
+          flex-grow: 1;
+        }
+
+        .contentContainer {
+            display: flex;
+            flex-direction: row;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            position: absolute;
+        }
+
         @-webkit-keyframes fadein {
             from {
                 opacity: 0;
@@ -148,16 +164,42 @@
         }
     </style>
 </head>
-<body>
+  <body>
     <div class="backdropContainer"></div>
     <div class="backgroundContainer"></div>
-    <div class="mainDrawer hide">
-        <div class="mainDrawer-scrollContainer scrollContainer focuscontainer-y"></div>
-    </div>
     <div class="skinHeader focuscontainer-x"></div>
-    <div class="mainAnimatedPages skinBody">
-        <div class="splashLogo"></div>
+    <div class="pageScrollContainer">
+      <div class="contentContainer">
+        <div class="mainDrawerHandle"></div>
+        <div class="mainDrawer hide">
+          <div class="mainDrawer-scrollContainer scrollContainer focuscontainer-y"></div>
+        </div>
+        <div class="mainAnimatedPages skinBody">
+          <div class="splashLogo"></div>
+        </div>
+      </div>
     </div>
-    <div class="mainDrawerHandle"></div>
-</body>
+  </body>
+
+<script>
+if(false) {
+console.log("The device pixel ratio for this browser is: "+window.devicePixelRatio);
+
+
+var myDiv = document.createElement("div");
+
+//Set its unique ID.
+myDiv.id = 'div_id';
+myDiv.style.color = 'red';
+myDiv.style.zIndex = '1000';
+
+
+//Add your content to the DIV
+myDiv.innerHTML = "The device pixel ratio for this browser is: "+window.devicePixelRatio + "  (" + window.outerWidth + "x" + window.outerHeight + ") agent [" + navigator.userAgent + "]";
+
+//Finally, append the element to the HTML body
+document.body.prepend(myDiv);
+}
+</script>
+
 </html>

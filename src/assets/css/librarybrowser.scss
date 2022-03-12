@@ -165,7 +165,7 @@
 }
 
 .skinHeader {
-    position: fixed;
+    position: relative;
     right: 0;
     left: 0;
     z-index: 999;
@@ -230,13 +230,12 @@
     margin: 1em 0 0.5em;
 }
 
+.sidebarHeader h3 {
+    margin: 0;
+}
+
 .dashboardDocument .skinBody {
     transition: left ease-in-out 0.3s, padding ease-in-out 0.3s;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
 }
 
 .centerMessage {
@@ -246,32 +245,55 @@
     text-align: center;
 }
 
+.hideMainDrawer .mainDrawer {
+    display: none;
+}
+
 .mainDrawer-scrollContainer {
     padding-bottom: 10vh;
 }
 
+.mainDrawer-scrollContainer:hover {
+    overflow-y: auto;
+}
+
+@media only screen and (min-width: 992px) {
+  .mainDrawer-scrollContainer {
+      overflow-y: hidden;
+  }
+}
+
+.mainDrawer {
+    width: 0px;
+    min-width: 0px;
+}
+
+.mainDrawer:hover {
+/*    position: absolute; */
+}
+
+.libraryDocument .mainDrawer .sidebarHeader {
+    display: none;
+}
+
+.libraryDocument .mainDrawer.drawer-open .sidebarHeader {
+    display: inherit;
+}
+ 
 @media all and (min-width: 40em) {
     .dashboardDocument .adminDrawerLogo,
     .dashboardDocument .mainDrawerButton {
         display: none !important;
     }
 
-    .dashboardDocument .mainDrawer {
-        z-index: inherit !important;
-        left: 0 !important;
-        top: 0 !important;
-        transform: none !important;
-        box-shadow: none !important;
-        width: 20.205em !important;
+    .mainDrawer {
+        width: 5em;
         font-size: 94%;
+        min-width: 5em;
     }
 
-    .dashboardDocument .mainDrawer-scrollContainer {
-        margin-top: 5em !important;
-    }
-
-    .dashboardDocument .skinBody {
-        left: 20em;
+    .dashboardDocument .mainDrawer {
+        width: 20.205em !important;
     }
 }
 
@@ -313,10 +335,6 @@
 
     .absolutePageTabContent {
         top: 5.7em !important;
-    }
-
-    .dashboardDocument .mainDrawer-scrollContainer {
-        margin-top: 4.65em !important;
     }
 }
 

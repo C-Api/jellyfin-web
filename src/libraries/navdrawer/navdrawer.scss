@@ -1,9 +1,10 @@
 .tmla-mask,
 .touch-menu-la {
-    position: fixed;
+    position: relative;
     top: 0;
     bottom: 0;
-    contain: strict;
+    transition: width .5s;
+/*    contain: strict; */
 }
 
 .touch-menu-la {
@@ -12,17 +13,20 @@
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
+/*
     -webkit-transition: -webkit-transform ease-out 40ms, left ease-out 260ms;
     -o-transition: transform ease-out 40ms, left ease-out 260ms;
-    transition: transform ease-out 40ms, left ease-out 260ms;
-    z-index: 1099;
+    transition: width .5s, transform ease-out 40ms, left ease-out 260ms;
+*/
 }
 
+/*
 .touch-menu-la.transition {
     -webkit-transition: -webkit-transform ease-out 240ms, left ease-out 260ms;
     -o-transition: transform ease-out 240ms, left ease-out 260ms;
-    transition: transform ease-out 240ms, left ease-out 260ms;
+    transition: width .5s, transform ease-out 240ms, left ease-out 260ms;
 }
+*/
 
 .drawer-open {
     -webkit-box-shadow: 2px 0 12px rgba(0, 0, 0, 0.4);

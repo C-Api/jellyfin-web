@@ -1,9 +1,6 @@
 .appfooter {
-    position: fixed;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 10;
-    bottom: 0;
     transition: transform 180ms linear;
     contain: layout style;
 }
